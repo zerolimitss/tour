@@ -91,15 +91,12 @@ class SiteController extends Controller
         }
         $income = Yii::$app->user->identity->income;
         $expenses = Yii::$app->user->identity->expenses;
-		
 		$history = array_merge($income, $expenses);
-	
 		usort($history, [$this, "cmp"]);
-
         return $this->render('history', compact("history"));
     }
 	
 	private function cmp($a, $b){
-		return strcmp($a->date, $b->date);
+		return strcmp($b->id, $a->id);
 	}
 }
