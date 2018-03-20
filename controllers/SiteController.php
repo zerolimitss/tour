@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\History;
 use app\models\SendForm;
 use app\models\User;
 use Yii;
@@ -89,10 +90,13 @@ class SiteController extends Controller
         if (\Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-        $income = Yii::$app->user->identity->income;
-        $expenses = Yii::$app->user->identity->expenses;
-		$history = array_merge($income, $expenses);
-		usort($history, [$this, "cmp"]);
+        //$income = Yii::$app->user->identity->income;
+        //$expenses = Yii::$app->user->identity->expenses;
+		//$history = array_merge($income, $expenses);
+		//usort($history, [$this, "cmp"]);
+        $user_id = Yii::$app->user->identity->id;
+        $history = History::find()->where(['user_id' => $user_id])
+            ->orWhere(['receiver_id' => $user_id])->orderBy(['id' => SORT_DESC])->all();
         return $this->render('history', compact("history"));
     }
 	

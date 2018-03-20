@@ -33,18 +33,27 @@ class SendForm extends Model
             }
             if($errors) return false;
 
+
             $user = User::findByUsername($this->login);
             $user->balance = $user->balance + $this->amount;
             $currentUser->balance = $currentUser->balance - $this->amount;
-            $user->save();
-            $currentUser->save();
 
             $history = new History();
             $history->user_id = $currentUser->id;
             $history->receiver_id = $user->id;
             $history->date = date("Y-m-d H:i:s");;
             $history->amount = $this->amount;
-            $history->save();
+
+            $transaction = Yii::$app->db->beginTransaction();
+            try{
+                $history->save();
+                $user->save();
+                $currentUser->save();
+                $transaction->commit();
+            }catch (\Exception $e){
+                $transaction->rollBack();
+                throw $e;
+            }
             return true;
         }
         return false;
